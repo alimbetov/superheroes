@@ -21,7 +21,7 @@ class NoFavoritesPage extends StatelessWidget {
                     height: 108.0,
                     width: 108.0,
                     decoration: BoxDecoration(
-                      color: Color(0xFFe0f2f1),
+                      color: Color(0xff00bcd4),
                       shape: BoxShape.circle,
                     ),
                   ),

@@ -1,6 +1,3 @@
-
-
-
 import 'package:flutter/material.dart';
 
 class MinSymbolPage extends StatelessWidget {
@@ -9,16 +6,20 @@ class MinSymbolPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only( left: 16, top: 134, right: 16),
-   child: Align(
-     alignment: Alignment.topCenter,
-     child: Text("Enter aty least 3 symbols",
-     style: TextStyle( fontWeight: FontWeight.w600,
-       fontSize: 20,
-       color: Colors.white,
-
-     ),),
-   ),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: EdgeInsets.only(top: 110),
+          child: Text(
+            "Enter at least 3 symbols",
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -43,7 +43,7 @@ stateSubject.add(nextState);
 
 enum  MainPageState {
   noFavorites,
-  minSymbol,
+  minSymbols,
   loading,
   nothingFound,
   loadingError,
