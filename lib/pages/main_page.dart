@@ -96,7 +96,7 @@ class MainPageStateWidget extends StatelessWidget {
                 title: "Nothing found",
                 subtitle: "Search for something else",
                 buttonText: "SEARCH",
-                assetImage: SuperHeroesImages.ironManAccet,
+                assetImage: SuperHeroesImages.hulkAccet,
                 imageHeith: 128,
                 imageWidth: 128,
                 imageTopPadding: 20);
@@ -105,7 +105,7 @@ class MainPageStateWidget extends StatelessWidget {
                 title: "Error happened",
                 subtitle: "Please, try agayn",
                 buttonText: "RETRY",
-                assetImage: SuperHeroesImages.ironManAccet,
+                assetImage: SuperHeroesImages.supermenAccet,
                 imageHeith: 128,
                 imageWidth: 128,
                 imageTopPadding: 20);

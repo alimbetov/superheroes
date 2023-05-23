@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:superheroes/resources/super_heroes_images.dart';
+import 'package:superheroes/resources/superheroes_Colors.dart';
 import 'package:superheroes/widgets/action_button.dart';
 
 class InfoWithButton extends StatelessWidget {
@@ -22,7 +23,8 @@ class InfoWithButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Center(
-          child: Stack(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -33,7 +35,7 @@ class InfoWithButton extends StatelessWidget {
                         height: imageHeith,
                         width: imageWidth,
                         decoration: BoxDecoration(
-                          color: Color(0xFFe0f2f1),
+                          color: SuperHeroesColors.blue,
                           shape: BoxShape.circle,
                         ),
                       ),

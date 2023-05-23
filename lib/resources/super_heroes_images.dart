@@ -6,8 +6,8 @@ class SuperHeroesImages{
   static const ironmanUrl ="https://www.superherodb.com/pictures2/portraits/10/100/85.jpg";
   static const venomUrl ="https://www.superherodb.com/pictures2/portraits/10/100/22.jpg";
 
-  static const hulkUrl ="https://www.superherodb.com/pictures2/portraits/10/100/401.jpg";
-  static const supermenUrl ="https://www.superherodb.com/pictures2/portraits/10/100/403.jpg";
+  static const hulkAccet ="assets/images/hulk.png";
+  static const supermenAccet ="assets/images/supermen.png";
 
 
 
