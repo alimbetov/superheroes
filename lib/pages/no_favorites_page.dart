@@ -10,7 +10,8 @@ class NoFavoritesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Center(
-      child: Stack(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
