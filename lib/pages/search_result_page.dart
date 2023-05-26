@@ -5,6 +5,7 @@ import 'package:superheroes/widgets/superhero_card.dart';
 
 import '../resources/super_heroes_images.dart';
 
+/*
 class SearchResult extends StatelessWidget {
   const SearchResult({Key? key}) : super(key: key);
 
@@ -44,3 +45,4 @@ class SearchResult extends StatelessWidget {
     );
   }
 }
+*/
