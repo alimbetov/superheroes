@@ -11,15 +11,30 @@ import 'package:superheroes/widgets/search_widget.dart';
 import 'favorites_page.dart';
 import 'min_symbol_page.dart';
 
+import 'package:http/http.dart' as http;
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+
+  final http.Client? client;
+
+  const MainPage({Key? key, this.client}) : super(key: key);
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  final bloc = MainBloc();
+
+  late MainBloc bloc;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+   bloc=MainBloc(client: widget.client);
+
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +106,8 @@ class MainPageStateWidget extends StatelessWidget {
                     assetImage: SuperHeroesImages.ironManAccet,
                     imageHeith: 128,
                     imageWidth: 128,
-                    imageTopPadding: 20),
+                    imageTopPadding: 20,
+                    onTap: (){},),
                  Align(
                   alignment: Alignment.bottomCenter,
                   child: ActionButton(
@@ -130,7 +146,8 @@ class MainPageStateWidget extends StatelessWidget {
                 assetImage: SuperHeroesImages.hulkAccet,
                 imageHeith: 106,
                 imageWidth: 128,
-                imageTopPadding: 20);
+                imageTopPadding: 20,
+                onTap: (){},);
           case MainPageState.loadingError:
             return InfoWithButton(
                 title: "Error happened",
@@ -139,7 +156,8 @@ class MainPageStateWidget extends StatelessWidget {
                 assetImage: SuperHeroesImages.supermenAccet,
                 imageHeith: 106,
                 imageWidth: 128,
-                imageTopPadding: 20);
+                imageTopPadding: 20,
+                onTap: (){},);
 
           default:
             return Center(

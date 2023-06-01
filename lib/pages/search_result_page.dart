@@ -31,14 +31,16 @@ class SearchResult extends StatelessWidget {
             ));
 
 
-        },),
-        SuperHeroCard(name: "VENOM",realName: "Eddie Brock", iMageUrl: SuperHeroesImages.venomUrl,onTap: (){
+        }, superheroInfo: null,),
+        SuperHeroCard(
+          superheroInfo: SuperheroInfo( ),
+          name: "VENOM",realName: "Eddie Brock", iMageUrl: SuperHeroesImages.venomUrl,onTap: (){
 
           Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => SuperHeroPage(heroName: 'VENOM',),
           ));
 
-        }),
+        },),
 
 
       ],

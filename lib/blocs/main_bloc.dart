@@ -1,7 +1,11 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:superheroes/exeption/apiExeption.dart';
+import 'package:superheroes/model/superHero.dart';
 import 'package:superheroes/resources/super_heroes_images.dart';
+import 'package:http/http.dart' as http;
 
 class MainBloc {
   static const MinSymbols = 3;
@@ -19,9 +23,11 @@ class MainBloc {
 
   StreamSubscription? searchSubscription;
 
+  http.Client? client;
+
   StreamSubscription<MainPageState>? streamSubscription;
 
-  MainBloc() {
+  MainBloc({this.client}) {
     stateSubject.add(MainPageState.noFavorites);
 
 /*
@@ -29,21 +35,22 @@ class MainBloc {
     = currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)).listen((value) {
 */
 
-    textSubscription
-      =Rx.combineLatest2<String,List<SuperheroInfo>,MainStatePageInfo>
-    (currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500))
-        , favoriteSuperHeroSDubject, (searchText, favorites) => MainStatePageInfo(
-              searchText: searchText, hasFavorites: favorites.isNotEmpty,)).listen((value) {
-        print("changed ${value}" );
+    textSubscription = Rx.combineLatest2<String, List<SuperheroInfo>,
+            MainStatePageInfo>(
+        currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)),
+        favoriteSuperHeroSDubject,
+        (searchText, favorites) => MainStatePageInfo(
+              searchText: searchText,
+              hasFavorites: favorites.isNotEmpty,
+            )).listen((value) {
+      print("changed ${value}");
       searchSubscription?.cancel();
       if (value.searchText.isEmpty) {
-
-        if (value.hasFavorites){
+        if (value.hasFavorites) {
           stateSubject.add(MainPageState.favorites);
         } else {
           stateSubject.add(MainPageState.noFavorites);
         }
-
       } else if (value.searchText.length < 3) {
         stateSubject.add(MainPageState.minSymbols);
       } else {
@@ -67,22 +74,57 @@ class MainBloc {
     });
   }
 
-  Stream<List<SuperheroInfo>> observFavoriteSuperHeroes()=> favoriteSuperHeroSDubject;
-  Stream<List<SuperheroInfo>> observSearchedSuperHeroes()=> searchSuperHeroSDubject;
+  Stream<List<SuperheroInfo>> observFavoriteSuperHeroes() =>
+      favoriteSuperHeroSDubject;
 
-
-
+  Stream<List<SuperheroInfo>> observSearchedSuperHeroes() =>
+      searchSuperHeroSDubject;
 
   Future<List<SuperheroInfo>> search(String text) async {
-    await Future.delayed(Duration(seconds: 1));
 
-    return SuperheroInfo.moked
-        .where((superheroInfo) => superheroInfo.name.toLowerCase().contains(text.toLowerCase()))
-        .toList();
+    final token = dotenv.env["SUPERHERO_TOKEN"];
+
+    final response = await (client?? http.Client())
+        .get(Uri.parse('https://superheroapi.com/api/${token}/search/${text}'));
+
+
+    if (response.statusCode >= 400 && response.statusCode <= 499) {
+      throw ApiException('Client error happened');
+    }
+    else if (response.statusCode >= 500 && response.statusCode <= 599) {
+      throw ApiException('Server error happened');
+    }
+    else if (response.statusCode==200) {
+
+      final decode = json.decode(response.body);
+
+      if (decode['response'] == 'error') {
+        if (decode['error'] == 'character with given name not found') {
+          return [];
+        } else {
+          throw ApiException('Client error happened');
+        }
+      } else if (decode['response'] == 'success') {
+        final List<dynamic> results = decode['results'];
+        List<SuperHero> superheroes =
+        results.map((e) => SuperHero.fromJson(e)).toList();
+
+        List<SuperheroInfo> found = superheroes.map((superhero) {
+          return SuperheroInfo(
+              name: superhero.name,
+              realName: superhero.biography.fullName,
+              imageUrl: superhero.image.url);
+        }).toList();
+
+        return found;
+      }
+
+      throw Exception('Unknown error happened');
+
+    }
+    throw Exception('Unknown error happened');
 
   }
-
-
 
   Stream<MainPageState> observeMainPageState() => stateSubject;
 
@@ -105,15 +147,15 @@ return Stream.periodic(Duration(seconds: 2), (tick) => tick )
     currentTextSubject.add(text ?? "");
   }
 
-  void removeFavorite(){
+  void removeFavorite() {
     List<SuperheroInfo> currentList = favoriteSuperHeroSDubject.value;
-    if(currentList.isEmpty){
+    if (currentList.isEmpty) {
       favoriteSuperHeroSDubject.add(SuperheroInfo.moked);
     } else {
-      favoriteSuperHeroSDubject.add(currentList.sublist(0, currentList.length-1)) ;
+      favoriteSuperHeroSDubject
+          .add(currentList.sublist(0, currentList.length - 1));
     }
 
-    
     print("remove Fav");
   }
 
@@ -124,6 +166,7 @@ return Stream.periodic(Duration(seconds: 2), (tick) => tick )
     currentTextSubject?.close();
     favoriteSuperHeroSDubject?.close();
     textSubscription?.cancel();
+    client?.close();
   }
 }
 
@@ -178,15 +221,14 @@ class SuperheroInfo {
   ];
 }
 
+class MainStatePageInfo {
+  final String searchText;
+  final bool hasFavorites;
 
-class MainStatePageInfo{
+  const MainStatePageInfo(
+      {required this.searchText, required this.hasFavorites});
 
-final String searchText;
-final bool hasFavorites;
-
-const MainStatePageInfo({ required this.searchText, required this.hasFavorites});
-
-@override
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MainStatePageInfo &&
@@ -197,7 +239,7 @@ const MainStatePageInfo({ required this.searchText, required this.hasFavorites})
   @override
   int get hashCode => searchText.hashCode ^ hasFavorites.hashCode;
 
-@override
+  @override
   String toString() {
     return 'MainStatePageInfo{searchText: $searchText, hasFavorites: $hasFavorites}';
   }
