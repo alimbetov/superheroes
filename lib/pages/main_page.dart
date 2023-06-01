@@ -6,6 +6,7 @@ import 'package:superheroes/resources/super_heroes_images.dart';
 import 'package:superheroes/resources/superheroes_Colors.dart';
 import 'package:superheroes/widgets/action_button.dart';
 import 'package:superheroes/widgets/info_with_button.dart';
+import 'package:superheroes/widgets/search_widget.dart';
 
 import 'favorites_page.dart';
 import 'min_symbol_page.dart';
@@ -43,18 +44,22 @@ class _MainPageState extends State<MainPage> {
 class MainPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    MainBloc bloc = Provider.of<MainBloc>(context);
-
-    return Stack (
+    return Stack(
       children: [
         MainPageStateWidget(),
-
-        Align(
+        /* Align(
           alignment: Alignment.bottomCenter,
-
-            child: ActionButton(text: "NEXT STATE", onTap: () {bloc.nextState();},),
+          child: ActionButton(
+            text: "NEXT STATE",
+            onTap: () {
+              bloc.nextState();
+            },
           ),
-
+        ),*/
+        Padding(
+          padding: EdgeInsets.only(left: 16, right: 16, top: 12),
+          child: SearchWidget(),
+        ),
       ],
     );
   }
@@ -77,27 +82,53 @@ class MainPageStateWidget extends StatelessWidget {
             return LoadingIndicator();
           case MainPageState.noFavorites:
             /*  return NoFavoritesPage();*/
-            return InfoWithButton(
-                title: "No favorities YET",
-                subtitle: "Search and  add",
-                buttonText: "SEARCH",
-                assetImage: SuperHeroesImages.ironManAccet,
-                imageHeith: 128,
-                imageWidth: 128,
-                imageTopPadding: 20);
+            return Stack(
+              children: [
+                InfoWithButton(
+                    title: "No favorities YET",
+                    subtitle: "Search and  add",
+                    buttonText: "SEARCH",
+                    assetImage: SuperHeroesImages.ironManAccet,
+                    imageHeith: 128,
+                    imageWidth: 128,
+                    imageTopPadding: 20),
+                 Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ActionButton(
+                      text: "Remove Favorite", onTap: bloc.removeFavorite),
+                ),
+              ],
+            );
+          case MainPageState.favorites:
+            /*return FavoritesPage();*/
+            return Stack(
+              children: [
+                SuperHeroesList(
+                    title: "Your Faforites",
+                    stream: bloc.observFavoriteSuperHeroes()),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ActionButton(
+                      text: "Remove Favorite", onTap: bloc.removeFavorite),
+                ),
+              ],
+            );
+
           case MainPageState.minSymbols:
             return MinSymbolPage();
-          case MainPageState.favorites:
-            return FavoritesPage();
+
           case MainPageState.searchResult:
-            return SearchResult();
+            /*return SearchResult();*/
+            return SuperHeroesList(
+                title: "Search Result",
+                stream: bloc.observSearchedSuperHeroes());
           case MainPageState.nothingFound:
             return InfoWithButton(
                 title: "Nothing found",
                 subtitle: "Search for something else",
                 buttonText: "SEARCH",
                 assetImage: SuperHeroesImages.hulkAccet,
-                imageHeith: 128,
+                imageHeith: 106,
                 imageWidth: 128,
                 imageTopPadding: 20);
           case MainPageState.loadingError:
@@ -106,7 +137,7 @@ class MainPageStateWidget extends StatelessWidget {
                 subtitle: "Please, try agayn",
                 buttonText: "RETRY",
                 assetImage: SuperHeroesImages.supermenAccet,
-                imageHeith: 128,
+                imageHeith: 106,
                 imageWidth: 128,
                 imageTopPadding: 20);
 
@@ -130,7 +161,7 @@ class LoadingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Align(
-  /*    alignment: Alignment.topCenter,*/
+      /*    alignment: Alignment.topCenter,*/
       child: Padding(
         padding: EdgeInsets.only(top: 110),
         child: CircularProgressIndicator(
