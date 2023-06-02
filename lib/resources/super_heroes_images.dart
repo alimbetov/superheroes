@@ -9,6 +9,7 @@ class SuperHeroesImages{
   static const hulkAccet ="assets/images/hulk.png";
   static const supermenAccet ="assets/images/supermen.png";
 
+  static const unknownAccet ="assets/images/unknown.png";
 
 
 
