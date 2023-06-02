@@ -70,8 +70,14 @@ class MainBloc {
         searchSuperHeroSDubject.add(searchResult);
       }
     }, onError: (error, stackTrace) {
+      print(error);
       stateSubject.add(MainPageState.loadingError);
     });
+  }
+
+  void retry() {
+    final curText = currentTextSubject.value;
+    searchForSuperHeroes(curText);
   }
 
   Stream<List<SuperheroInfo>> observFavoriteSuperHeroes() =>
@@ -81,21 +87,16 @@ class MainBloc {
       searchSuperHeroSDubject;
 
   Future<List<SuperheroInfo>> search(String text) async {
-
     final token = dotenv.env["SUPERHERO_TOKEN"];
 
-    final response = await (client?? http.Client())
+    final response = await (client ?? http.Client())
         .get(Uri.parse('https://superheroapi.com/api/${token}/search/${text}'));
-
 
     if (response.statusCode >= 400 && response.statusCode <= 499) {
       throw ApiException('Client error happened');
-    }
-    else if (response.statusCode >= 500 && response.statusCode <= 599) {
+    } else if (response.statusCode >= 500 && response.statusCode <= 599) {
       throw ApiException('Server error happened');
-    }
-    else if (response.statusCode==200) {
-
+    } else if (response.statusCode == 200) {
       final decode = json.decode(response.body);
 
       if (decode['response'] == 'error') {
@@ -107,7 +108,7 @@ class MainBloc {
       } else if (decode['response'] == 'success') {
         final List<dynamic> results = decode['results'];
         List<SuperHero> superheroes =
-        results.map((e) => SuperHero.fromJson(e)).toList();
+            results.map((e) => SuperHero.fromJson(e)).toList();
 
         List<SuperheroInfo> found = superheroes.map((superhero) {
           return SuperheroInfo(
@@ -120,10 +121,8 @@ class MainBloc {
       }
 
       throw Exception('Unknown error happened');
-
     }
     throw Exception('Unknown error happened');
-
   }
 
   Stream<MainPageState> observeMainPageState() => stateSubject;

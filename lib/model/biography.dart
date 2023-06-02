@@ -10,7 +10,7 @@ class  Biography {
   final String alignment;
   final String fullName;
 
-  Biography(this.fullName, this.alignment);
+  Biography({required this.fullName,required this.alignment});
 
   factory Biography.fromJson(final Map <String,dynamic> json) => _$BiographyFromJson(json);
 

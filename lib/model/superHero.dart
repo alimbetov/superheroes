@@ -14,7 +14,7 @@ class  SuperHero  {
   final ServerImage image;
   final Powerstats powerstats;
 
-  SuperHero(this.name, this.biography, this.image, this.powerstats, this.id);
+  SuperHero({ required this.name, required this.biography,required  this.image, required this.powerstats, required this.id});
 
 
 

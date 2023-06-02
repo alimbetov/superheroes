@@ -5,8 +5,11 @@ import 'package:superheroes/blocs/main_bloc.dart';
 import 'package:superheroes/resources/superheroes_Colors.dart';
 
 class SearchWidget extends StatefulWidget {
+
+final FocusNode searchFieldFocusNode;
+
   const SearchWidget({
-    super.key,
+    super.key, required this.searchFieldFocusNode,
   });
 
   @override
@@ -41,6 +44,7 @@ class _SearchWidgetState extends State<SearchWidget> {
 
     return TextField(
       controller: txtcontroller,
+      focusNode: widget.searchFieldFocusNode,
       // onChanged: (text) {},
       textAlign: TextAlign.center,
       textCapitalization: TextCapitalization.words,

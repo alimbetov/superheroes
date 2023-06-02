@@ -34,25 +34,29 @@ class SuperHeroCard extends StatelessWidget {
               height: 70,
               width: 70,
               child: CachedNetworkImage(
-                imageUrl: superheroInfo.imageUrl,
-                progressIndicatorBuilder: (context, url, progress) => Container(
-                  height: 24,
-                  width: 24,
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator(
-                    color: SuperHeroesColors.circColor,
-                    value: progress.progress,
-                  ),
-                ),
-                height: 70,
-                width: 70,
-                fit: BoxFit.fitWidth,
-                errorWidget: (context, url, error) => Center(
-                  child: Image(
-                    image: AssetImage(SuperHeroesImages.notExistsHeroIconAccet),
-                  ),
-                ),
-              ),
+                  imageUrl: superheroInfo.imageUrl,
+                  progressIndicatorBuilder: (context, url, progress) {
+                    return Container(
+                      height: 24,
+                      width: 24,
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(
+                        color: SuperHeroesColors.blue,
+                        value: progress.progress,
+                      ),
+                    );
+                  },
+                  height: 70,
+                  width: 70,
+                  fit: BoxFit.fitWidth,
+                  errorWidget: (context, url, error) {
+                    return Center(
+                      child:Image.asset(SuperHeroesImages.unknownAccet,
+                        height: 62,
+                        width: 20,
+                      fit: BoxFit.cover,)
+                    );
+                  }),
             ),
             SizedBox(
               height: 70,
