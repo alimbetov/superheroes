@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:superheroes/blocs/main_bloc.dart';
+import 'package:superheroes/model/alignment_Info.dart';
 import 'package:superheroes/resources/super_heroes_images.dart';
 import 'package:superheroes/resources/superheroes_Colors.dart';
 
@@ -25,74 +26,124 @@ class SuperHeroCard extends StatelessWidget {
         // padding: const EdgeInsets.only(left: 16, right: 16, bottom: 4, top: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: SuperHeroesColors.background,
+          color: SuperHeroesColors.indigo,
         ),
         child: Row(
           children: [
-            Container(
-              color: Colors.white24,
-              height: 70,
-              width: 70,
-              child: CachedNetworkImage(
-                  imageUrl: superheroInfo.imageUrl,
-                  progressIndicatorBuilder: (context, url, progress) {
-                    return Container(
-                      height: 24,
-                      width: 24,
-                      alignment: Alignment.center,
-                      child: CircularProgressIndicator(
-                        color: SuperHeroesColors.blue,
-                        value: progress.progress,
-                      ),
-                    );
-                  },
-                  height: 70,
-                  width: 70,
-                  fit: BoxFit.fitWidth,
-                  errorWidget: (context, url, error) {
-                    return Center(
-                      child:Image.asset(SuperHeroesImages.unknownAccet,
-                        height: 62,
-                        width: 20,
-                      fit: BoxFit.cover,)
-                    );
-                  }),
-            ),
-            SizedBox(
-              height: 70,
-              width: 258,
-              child: DecoratedBox(
-                decoration: const BoxDecoration(
-                  color: SuperHeroesColors.backgroundfaforites,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "${superheroInfo.name}",
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white),
-                      ),
-                      Text(
-                        "${superheroInfo.realName}",
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
+            _AvatarWidget(superheroInfo: superheroInfo),
+           SizedBox(height: 12,),
+           Expanded(child: DecoratedBox(
+              decoration: const BoxDecoration(
+                color: SuperHeroesColors.backgroundfaforites,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: NameAndRealNameWiget(superheroInfo: superheroInfo),
               ),
             ),
+           ),
+            if (superheroInfo.alignmentInfo != null)
+              AlignmentWiget(alignmentinfo: superheroInfo.alignmentInfo!)
           ],
         ),
       ),
+    );
+  }
+}
+
+class AlignmentWiget extends StatelessWidget {
+  final AlignmentInfo alignmentinfo;
+
+  const AlignmentWiget({Key? key, required this.alignmentinfo})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RotatedBox(
+        quarterTurns: 1,
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 6),
+          color: alignmentinfo.color,
+          alignment: Alignment.center,
+          child: Text(
+            alignmentinfo.name,
+            style: TextStyle(
+                fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white),
+          ),
+        ));
+  }
+}
+
+class NameAndRealNameWiget extends StatelessWidget {
+  const NameAndRealNameWiget({
+    super.key,
+    required this.superheroInfo,
+  });
+
+  final SuperheroInfo superheroInfo;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "${superheroInfo.name}",
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+          ),
+          Text(
+            "${superheroInfo.realName}",
+            style: TextStyle(
+                fontSize: 14, fontWeight: FontWeight.w400, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AvatarWidget extends StatelessWidget {
+  const _AvatarWidget({
+    super.key,
+    required this.superheroInfo,
+  });
+
+  final SuperheroInfo superheroInfo;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white24,
+      height: 70,
+      width: 70,
+      child: CachedNetworkImage(
+          imageUrl: superheroInfo.imageUrl,
+          progressIndicatorBuilder: (context, url, progress) {
+            return Container(
+              height: 24,
+              width: 24,
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(
+                color: SuperHeroesColors.blue,
+                value: progress.progress,
+              ),
+            );
+          },
+          height: 70,
+          width: 70,
+          fit: BoxFit.fitWidth,
+          errorWidget: (context, url, error) {
+            return Center(
+                child: Image.asset(
+              SuperHeroesImages.unknownAccet,
+              height: 62,
+              width: 20,
+              fit: BoxFit.cover,
+            ));
+          }),
     );
   }
 }

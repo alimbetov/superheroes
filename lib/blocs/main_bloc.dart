@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:superheroes/exeption/apiExeption.dart';
-import 'package:superheroes/model/superHero.dart';
+import 'package:superheroes/favorite_superheroes_storage.dart';
+import 'package:superheroes/model/alignment_Info.dart';
+import 'package:superheroes/model/superhero.dart';
 import 'package:superheroes/resources/super_heroes_images.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,33 +14,27 @@ class MainBloc {
 
   final BehaviorSubject<MainPageState> stateSubject = BehaviorSubject();
 
+/*
   final favoriteSuperHeroSDubject =
       BehaviorSubject<List<SuperheroInfo>>.seeded(SuperheroInfo.moked);
+*/
 
   final searchSuperHeroSDubject = BehaviorSubject<List<SuperheroInfo>>();
-
   final currentTextSubject = BehaviorSubject<String>.seeded("");
-
   StreamSubscription? textSubscription;
 
   StreamSubscription? searchSubscription;
-
+  StreamSubscription? removeFromFavoriteSubscription;
   http.Client? client;
 
   StreamSubscription<MainPageState>? streamSubscription;
 
   MainBloc({this.client}) {
-    stateSubject.add(MainPageState.noFavorites);
-
-/*
-    textSubscription
-    = currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)).listen((value) {
-*/
-
-    textSubscription = Rx.combineLatest2<String, List<SuperheroInfo>,
+    //stateSubject.add(MainPageState.noFavorites);
+    textSubscription = Rx.combineLatest2<String, List<SuperHero>,
             MainStatePageInfo>(
         currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)),
-        favoriteSuperHeroSDubject,
+        FavoriteSuperHeroStorage.getInstance().observeFavoriteSuperHeroes(),
         (searchText, favorites) => MainStatePageInfo(
               searchText: searchText,
               hasFavorites: favorites.isNotEmpty,
@@ -80,8 +76,13 @@ class MainBloc {
     searchForSuperHeroes(curText);
   }
 
-  Stream<List<SuperheroInfo>> observFavoriteSuperHeroes() =>
-      favoriteSuperHeroSDubject;
+  Stream<List<SuperheroInfo>> observFavoriteSuperHeroes() {
+    return FavoriteSuperHeroStorage.getInstance()
+        .observeFavoriteSuperHeroes()
+        .map((superHeroes) => superHeroes
+            .map((superHero) => SuperheroInfo.fromSuperHero(superHero))
+            .toList());
+  }
 
   Stream<List<SuperheroInfo>> observSearchedSuperHeroes() =>
       searchSuperHeroSDubject;
@@ -111,10 +112,7 @@ class MainBloc {
             results.map((e) => SuperHero.fromJson(e)).toList();
 
         List<SuperheroInfo> found = superheroes.map((superhero) {
-          return SuperheroInfo(
-              name: superhero.name,
-              realName: superhero.biography.fullName,
-              imageUrl: superhero.image.url);
+          return SuperheroInfo.fromSuperHero(superhero);
         }).toList();
 
         return found;
@@ -146,26 +144,28 @@ return Stream.periodic(Duration(seconds: 2), (tick) => tick )
     currentTextSubject.add(text ?? "");
   }
 
-  void removeFavorite() {
-    List<SuperheroInfo> currentList = favoriteSuperHeroSDubject.value;
-    if (currentList.isEmpty) {
-      favoriteSuperHeroSDubject.add(SuperheroInfo.moked);
-    } else {
-      favoriteSuperHeroSDubject
-          .add(currentList.sublist(0, currentList.length - 1));
-    }
-
-    print("remove Fav");
+  void removeFromFavortes(final String id) {
+    removeFromFavoriteSubscription?.cancel();
+    removeFromFavoriteSubscription = FavoriteSuperHeroStorage.getInstance()
+        .removeFromFavorites(id)
+        .asStream()
+        .listen((event) {
+      print("removeFromFavorite from favorits $event");
+    }, onError: (error, stackTrace) {
+      print(
+          "Error happened in removeFromFavorite  error=$error  , stackTrace=$stackTrace");
+    });
   }
 
   void dispose() {
     stateSubject?.close();
     streamSubscription?.cancel();
     searchSuperHeroSDubject?.close();
+    searchSubscription?.cancel();
     currentTextSubject?.close();
-    favoriteSuperHeroSDubject?.close();
     textSubscription?.cancel();
     client?.close();
+    removeFromFavoriteSubscription?.cancel();
   }
 }
 
@@ -180,23 +180,39 @@ enum MainPageState {
 }
 
 class SuperheroInfo {
+  final String id;
   final String name;
   final String realName;
   final String imageUrl;
+  final AlignmentInfo? alignmentInfo;
 
   @override
   String toString() {
     return 'SuperheroInfo{name: $name, realName: $realName, imageUrl: $imageUrl}';
   }
 
+  factory SuperheroInfo.fromSuperHero(final SuperHero superHero) {
+    return SuperheroInfo(
+        id: superHero.id,
+        name: superHero.name,
+        realName: superHero.biography.fullName,
+        imageUrl: superHero.image.url,
+        alignmentInfo: superHero.biography.alignmentInfo);
+  }
+
   const SuperheroInfo(
-      {required this.name, required this.realName, required this.imageUrl});
+      {required this.id,
+      required this.name,
+      required this.realName,
+      required this.imageUrl,
+      this.alignmentInfo});
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SuperheroInfo &&
           runtimeType == other.runtimeType &&
+          id == other.id &&
           name == other.name &&
           realName == other.realName &&
           imageUrl == other.imageUrl;
@@ -206,14 +222,17 @@ class SuperheroInfo {
 
   static const moked = [
     SuperheroInfo(
+        id: "70",
         name: "BATMAN",
         realName: "Bruce Wayne",
         imageUrl: SuperHeroesImages.batmanUrl),
     SuperheroInfo(
+        id: "732",
         name: "IRONMAN",
         realName: "Tony Stark",
         imageUrl: SuperHeroesImages.ironmanUrl),
     SuperheroInfo(
+        id: "687",
         name: "VENOM",
         realName: "Eddie Brock",
         imageUrl: SuperHeroesImages.venomUrl),
