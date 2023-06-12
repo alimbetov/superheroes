@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:superheroes/blocs/superhero_bloc.dart';
 import 'package:superheroes/model/biography.dart';
 import 'package:superheroes/model/power_stats.dart';
+import 'package:superheroes/resources/super_heroes_images.dart';
 import 'package:superheroes/resources/superheroes_Colors.dart';
 import 'package:http/http.dart' as http;
 
@@ -99,7 +100,7 @@ class SuperHeroAppBar extends StatelessWidget {
       floating: true,
       expandedHeight: 348,
       actions: [
-       /* StreamBuilder<bool>(
+        /* StreamBuilder<bool>(
             stream: bloc.observeIsFavorite(),
             initialData: false,
             builder: (context, snapshot) {
@@ -120,7 +121,7 @@ class SuperHeroAppBar extends StatelessWidget {
                 ),
               );
             }),*/
-FavoriteButton(),
+        FavoriteButton(),
       ],
       backgroundColor: SuperHeroesColors.background,
       flexibleSpace: FlexibleSpaceBar(
@@ -131,13 +132,38 @@ FavoriteButton(),
                 fontSize: 22)),
         centerTitle: true,
         background: CachedNetworkImage(
-          imageUrl: superHero.image.url,
-          fit: BoxFit.cover,
-        ),
+            imageUrl: superHero.image.url,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              color:  Colors.transparent,
+              height: 62,
+              width: 20,
+            ),
+            errorWidget: (context, url, error) {
+              return Center(
+                child: Image.asset(
+                  SuperHeroesImages.unknownAccet,
+                  height: 62,
+                  width: 20,
+                  fit: BoxFit.cover,
+                ),
+              );
+            }),
       ),
     );
   }
 }
+
+
+class Placeholder extends StatelessWidget {
+  const Placeholder({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
+
 
 class FavoriteButton extends StatelessWidget {
   const FavoriteButton({
@@ -148,23 +174,26 @@ class FavoriteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = Provider.of<SuperHeroBloc>(context, listen: false);
 
-    return             StreamBuilder<bool>(
+    return StreamBuilder<bool>(
         stream: bloc.observeIsFavorite(),
         initialData: false,
         builder: (context, snapshot) {
-          final favorite = !snapshot.hasData || snapshot.data == null || snapshot.data!;
+          final favorite =
+              !snapshot.hasData || snapshot.data == null || snapshot.data!;
           return GestureDetector(
             onTap: () =>
-            favorite ? bloc.removeFromFavorite() : bloc.addToFavorite(),
+                favorite ? bloc.removeFromFavorite() : bloc.addToFavorite(),
             child: Container(
               height: 52,
               width: 52,
               alignment: Alignment.center,
-              child: Image.asset(favorite
-                  ? SuperHeroesIcons.starFulled
-                  : SuperHeroesIcons.starEmpty,
+              child: Image.asset(
+                favorite
+                    ? SuperHeroesIcons.starFulled
+                    : SuperHeroesIcons.starEmpty,
                 height: 32,
-                width: 32,),
+                width: 32,
+              ),
             ),
           );
         });
@@ -356,12 +385,15 @@ class BiographyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 300,
-      alignment: Alignment.center,
-      child: Text(
-        biography.toJson().toString(),
-        style: TextStyle(color: Colors.white),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        height: 300,
+        alignment: Alignment.center,
+        child: Text(
+          biography.toJson().toString(),
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
