@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'superHero.dart';
+part of 'superhero.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

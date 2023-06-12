@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'power_stats.g.dart';
 
-@JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
+@JsonSerializable()
 class Powerstats {
   final String intelligence;
   final String strength;
@@ -19,4 +19,20 @@ class Powerstats {
       _$PowerstatsFromJson(json);
 
   Map<String, dynamic> toJson() => _$PowerstatsToJson(this);
+
+  double  convertStrinToPersent(String value) {
+    final initValue = int.tryParse(value);
+    if (initValue == null) return 0;
+    return initValue / 100;
+  }
+
+  double get intelligencePercent => convertStrinToPersent(intelligence);
+  double get strengthPercent => convertStrinToPersent(strength);
+  double get speedPercent => convertStrinToPersent(speed);
+  double get durabilityPercent => convertStrinToPersent(durability);
+  double get powerPercent => convertStrinToPersent(power);
+  double get combatPercent => convertStrinToPersent(combat);
+
+
+
 }
