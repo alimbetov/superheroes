@@ -120,36 +120,8 @@ class ListTile extends StatelessWidget {
                       ),
                 ));
               }),
-          secondaryBackground: Container(
-            height: 70,
-            alignment: Alignment.centerRight,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: SuperHeroesColors.red,
-            ),
-
-            child: Text(
-              "   Remove\n   from\n   Favorites".toUpperCase(),
-              style: TextStyle(fontSize: 12,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800),
-            ),
-          ),
-          background: Container(
-            height: 70,
-            alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: SuperHeroesColors.red,
-            ),
-
-             child: Text(
-              "  Remove\n from\n   Favorites".toUpperCase(),
-              style: TextStyle(fontSize: 12,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800),
-            ),
-          ),
+          secondaryBackground: BackGroundCard(isLeft: true,),
+          background: BackGroundCard(isLeft: false,),
           onDismissed: (_) => bloc.removeFromFavortes(superHero.id),
         ),
       );
@@ -169,6 +141,38 @@ class ListTile extends StatelessWidget {
       );
   }
 }
+
+
+
+class BackGroundCard extends StatelessWidget {
+  final bool isLeft;
+  const BackGroundCard({Key? key, required this.isLeft}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return  Container(
+      height: 70,
+      alignment: isLeft? Alignment.centerRight:Alignment.centerLeft,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: SuperHeroesColors.red,
+      ),
+
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+        child: Text(
+          "Remove\nfrom\nFavorites".toUpperCase(),
+          textAlign:isLeft?TextAlign.right:TextAlign.left,
+          style: TextStyle(fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.w800),
+        ),
+      ),
+    );
+  }
+}
+
+
 
 class ListTitleWiget extends StatelessWidget {
   const ListTitleWiget({

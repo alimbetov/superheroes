@@ -9,6 +9,8 @@ import 'package:superheroes/model/power_stats.dart';
 import 'package:superheroes/resources/super_heroes_images.dart';
 import 'package:superheroes/resources/superheroes_Colors.dart';
 import 'package:http/http.dart' as http;
+import 'package:superheroes/widgets/alignment_wiget.dart';
+import 'package:superheroes/widgets/info_with_button.dart';
 
 import '../resources/super_heroes_icons.dart';
 
@@ -54,7 +56,79 @@ class SuperHeroContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = Provider.of<SuperHeroBloc>(context, listen: false);
+    return StreamBuilder<SuperheroPageState>(
+        stream: bloc.observeSuperHeroPageState(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot == null) {
+            return SizedBox.shrink();
+          }
+          final state = snapshot.data!;
+          switch (state) {
+            case SuperheroPageState.loading:
+              return superheroLoadingWidget();
+            case SuperheroPageState.loaded:
+              return SuperHeroLoadedWidget();
+            case SuperheroPageState.error:
+            default:
+              return superheroErrorWidget();
+          }
+        });
+  }
+}
 
+class superheroErrorWidget extends StatelessWidget {
+  const superheroErrorWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<SuperHeroBloc>(context, listen: false);
+    return Container(
+      margin: EdgeInsets.only(top: 60),
+      alignment: Alignment.topCenter,
+      child: InfoWithButton(
+        title: "Error happened",
+        subtitle: "Please, try agayn",
+        buttonText: "RETRY",
+        assetImage: SuperHeroesImages.supermenAccet,
+        imageHeith: 106,
+        imageWidth: 128,
+        imageTopPadding: 20,
+        onTap: bloc.retry,
+      ),
+    );
+  }
+}
+
+class superheroLoadingWidget extends StatelessWidget {
+  const superheroLoadingWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(backgroundColor: SuperHeroesColors.background,),
+        SliverToBoxAdapter(
+            child: Container(
+              margin:  EdgeInsets.only(top: 60),
+              height: 44,
+              width: 44,
+              alignment: Alignment.topCenter,
+              child: CircularProgressIndicator(
+                color: SuperHeroesColors.blue,
+              ),
+            ),
+            
+          ),
+
+      ],
+    );;
+  }
+}
+
+class SuperHeroLoadedWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<SuperHeroBloc>(context, listen: false);
     return StreamBuilder(
         stream: bloc.observeSuperHero(),
         builder: (context, snapshot) {
@@ -63,6 +137,8 @@ class SuperHeroContent extends StatelessWidget {
           }
 
           final superHero = snapshot.data!;
+
+          print("Got new super Herro ${superHero}");
 
           return CustomScrollView(
             slivers: [
@@ -74,7 +150,10 @@ class SuperHeroContent extends StatelessWidget {
                   ),
                   if (superHero.isNotNull())
                     PowerStatsWidget(powerstats: superHero.powerstats),
-                  BiographyWidget(biography: superHero.biography)
+                  BiographyWidget(biography: superHero.biography),
+                  SizedBox(
+                    height: 30,
+                  ),
                 ]),
               ),
             ],
@@ -135,14 +214,14 @@ class SuperHeroAppBar extends StatelessWidget {
             imageUrl: superHero.image.url,
             fit: BoxFit.cover,
             placeholder: (context, url) => Container(
-              color:  Colors.transparent,
-              height: 62,
-              width: 20,
-            ),
+                  color: Colors.transparent,
+                  height: 62,
+                  width: 20,
+                ),
             errorWidget: (context, url, error) {
               return Center(
                 child: Image.asset(
-                  SuperHeroesImages.unknownAccet,
+                  SuperHeroesImages.unknownnBig,
                   height: 62,
                   width: 20,
                   fit: BoxFit.cover,
@@ -154,7 +233,6 @@ class SuperHeroAppBar extends StatelessWidget {
   }
 }
 
-
 class Placeholder extends StatelessWidget {
   const Placeholder({Key? key}) : super(key: key);
 
@@ -163,7 +241,6 @@ class Placeholder extends StatelessWidget {
     return const Placeholder();
   }
 }
-
 
 class FavoriteButton extends StatelessWidget {
   const FavoriteButton({
@@ -385,16 +462,94 @@ class BiographyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        height: 300,
-        alignment: Alignment.center,
-        child: Text(
-          biography.toJson().toString(),
-          style: TextStyle(color: Colors.white),
-        ),
+    return Container(
+      height: 300,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: SuperHeroesColors.indigo,
+        borderRadius: BorderRadius.circular(20),
       ),
+      margin: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 24),
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "BIO",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                        color: Colors.white),
+                  ),
+                ),
+              ),
+              BiographyField(
+                fieldName: "Full Name".toUpperCase(),
+                fieldValue: biography.fullName,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              BiographyField(
+                fieldName: "Aliases".toUpperCase(),
+                fieldValue: biography.aliases.join(", "),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              BiographyField(
+                fieldName: "Place Of Birth",
+                fieldValue: biography.placeOfBirth,
+              ),
+            ],
+          ),
+          if (biography.alignmentInfo != null)
+            Align(
+              alignment: Alignment.topRight,
+              child: AlignmentWiget(
+                  alignmentinfo: biography.alignmentInfo!,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  )),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class BiographyField extends StatelessWidget {
+  final String fieldName;
+  final String fieldValue;
+
+  const BiographyField(
+      {Key? key, required this.fieldName, required this.fieldValue})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          fieldName.toUpperCase(),
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+              color: SuperHeroesColors.secondarygrey),
+        ),
+        Text(
+          fieldValue.toUpperCase(),
+          style: TextStyle(
+              fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white),
+        ),
+      ],
     );
   }
 }

@@ -11,6 +11,7 @@ class SuperHeroesImages{
 
   static const unknownAccet ="assets/images/unknown.png";
 
+  static const unknownnBig ="assets/images/unknown_big.png";
 
 
 

@@ -27,8 +27,30 @@ class  SuperHero  {
     && this.powerstats.speed!="null"
     && this.powerstats.strength!="null";
 
-
-
   Map<String,dynamic> toJson() => _$SuperHeroToJson(this);
 
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SuperHero &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name &&
+          biography == other.biography &&
+          image == other.image &&
+          powerstats == other.powerstats;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      name.hashCode ^
+      biography.hashCode ^
+      image.hashCode ^
+      powerstats.hashCode;
+
+  @override
+  String toString() {
+    return 'SuperHero{id: $id, name: $name, biography: $biography, image: $image, powerstats: $powerstats}';
+  }
 }

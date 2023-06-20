@@ -21,6 +21,7 @@ class SuperHeroesColors{
   static const grey= Color(0xFF727272);
   static const green= Color(0xFF2AAB6A);
 
+  static const secondarygrey= Color(0xFF999999);
 
 
 
